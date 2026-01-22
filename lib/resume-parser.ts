@@ -1,11 +1,14 @@
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Set worker source (required for client-side parsing)
-if (typeof window !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// import * as pdfjsLib from 'pdfjs-dist'; 
+// Dynamic import used inside function to avoid SSR/Build issues with canvas
 
 export async function extractTextFromPDF(file: File): Promise<string> {
+    const pdfjsLib = await import('pdfjs-dist');
+
+    // Set worker source (required for client-side parsing)
+    if (typeof window !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument(arrayBuffer);
     const pdf = await loadingTask.promise;
